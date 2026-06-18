@@ -336,7 +336,7 @@ export function Hero() {
 
         {/* Right: car image */}
         <motion.div
-          className="relative hidden lg:flex lg:justify-center"
+          className="relative flex justify-center lg:justify-center"
           initial="hidden"
           animate="visible"
           variants={scaleIn}
@@ -345,7 +345,7 @@ export function Hero() {
             aria-hidden="true"
             className="absolute inset-0 scale-125 rounded-full bg-primary/5 blur-3xl"
           />
-          <CarIllustration className="relative z-10 w-full max-w-lg drop-shadow-2xl" />
+          <CarIllustration className="relative z-10 w-full max-w-xs sm:max-w-sm lg:max-w-lg drop-shadow-2xl" />
         </motion.div>
       </div>
     </motion.section>
