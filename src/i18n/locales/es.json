@@ -1,0 +1,84 @@
+{
+  "nav": {
+    "ride": "Viajar",
+    "drive": "Conducir",
+    "business": "Empresas",
+    "about": "Nosotros",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "aria_label": "Navegación principal",
+    "home_label": "NUVO inicio"
+  },
+  "hero": {
+    "badge": "NUEVO LANZAMIENTO",
+    "title": "Viaja con confianza, llega con NUVO",
+    "title_pre": "Viaja con confianza,",
+    "title_post": "llega con",
+    "subtitle": "La forma más rápida, segura y económica de moverte por tu ciudad. Tecnología centrada en el humano para tu día a día.",
+    "cta_primary": "Solicita tu viaje",
+    "cta_secondary": "Ver tarifas",
+    "social_proof": "Más de 10,000 usuarios este mes",
+    "avatar_label": "Usuario satisfecho"
+  },
+  "passenger": {
+    "title": "Tu ciudad en tus manos",
+    "subtitle": "Diseñado para que tu única preocupación sea disfrutar el camino. Con NUVO, el transporte inteligente es estándar.",
+    "img_alt": "App NUVO para pasajeros",
+    "features": [
+      { "title": "Simplicidad Total",     "description": "Pide un viaje en dos toques. Sin complicaciones, sin esperas innecesarias." },
+      { "title": "Seguridad de Élite",    "description": "Seguimiento en tiempo real y conductores verificados para tu tranquilidad total." },
+      { "title": "Precios Transparentes", "description": "Conoce el costo exacto antes de subirte. Sin cargos ocultos ni sorpresas." }
+    ]
+  },
+  "driver": {
+    "title": "Conduce cuando quieras, gana lo que mereces",
+    "subtitle": "Conviértete en socio conductor y toma el control de tu tiempo. NUVO te ofrece las mejores herramientas del mercado.",
+    "cta": "Registrarme como conductor",
+    "img_alt": "App NUVO para conductores",
+    "cards": [
+      { "title": "Ganancias Maximizadas", "description": "Mapas de calor en tiempo real para encontrarte donde está la demanda." },
+      { "title": "Flexibilidad Total",    "description": "Tú decides tu horario. Sin jefes, sin ataduras, solo tú y tu camino." }
+    ]
+  },
+  "fleet": {
+    "title": "Una flota para cada necesidad",
+    "subtitle": "Desde lo más económico hasta lo más exclusivo, tenemos el vehículo perfecto para ti.",
+    "cards": [
+      { "title": "NUVO Economy", "description": "Viajes asequibles para el día a día. Calidad NUVO al mejor precio garantizado.",              "features": ["Hasta 4 pasajeros", "Aire acondicionado"], "badge": "" },
+      { "title": "NUVO Premier", "description": "Viaja con estilo en vehículos de alta gama con los conductores mejor calificados de la red.", "features": ["Vehículos Premium", "Conductores VIP"],     "badge": "RECOMENDADO" },
+      { "title": "NUVO Green",   "description": "Comprometidos con el planeta. Solo vehículos eléctricos o híbridos para un viaje eco-friendly.", "features": ["100% Sostenible", "Silencio absoluto"], "badge": "" }
+    ]
+  },
+  "download": {
+    "title": "Descarga NUVO hoy mismo",
+    "subtitle": "Disponible en App Store y Google Play. Únete a la revolución de la movilidad urbana."
+  },
+  "support": {
+    "title": "Soporte 24/7",
+    "subtitle": "Estamos aquí para ayudarte en cualquier momento del día.",
+    "placeholder": "Tu correo electrónico",
+    "email_aria": "Correo electrónico para suscripción",
+    "cta": "Suscribirse"
+  },
+  "language": {
+    "label": "Seleccionar idioma",
+    "es": "ES",
+    "en": "EN"
+  },
+  "footer": {
+    "tagline": "Llevándote a donde necesitas estar, de la manera más inteligente posible.",
+    "social": {
+      "website": "Sitio web",
+      "chat": "Chat",
+      "instagram": "Instagram"
+    },
+    "columns": {
+      "company":  { "title": "Empresa",   "links": ["Sobre Nosotros", "Carreras", "Blog", "Prensa"] },
+      "products": { "title": "Productos", "links": ["Pasajeros", "Conductores", "Negocios", "Entregas"] },
+      "legal":    { "title": "Legal",     "links": ["Privacidad", "Términos y Condiciones", "Accesibilidad", "Cookies"] }
+    },
+    "copyright": "© 2024 NUVO Technologies Inc. Todos los derechos reservados.",
+    "language": "Español (ES)",
+    "currency": "USD ($)"
+  }
+}

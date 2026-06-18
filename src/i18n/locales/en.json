@@ -1,0 +1,84 @@
+{
+  "nav": {
+    "ride": "Ride",
+    "drive": "Drive",
+    "business": "Business",
+    "about": "About",
+    "login": "Log in",
+    "signup": "Sign up",
+    "aria_label": "Main navigation",
+    "home_label": "NUVO home"
+  },
+  "hero": {
+    "badge": "NEW LAUNCH",
+    "title": "Travel with confidence, arrive with NUVO",
+    "title_pre": "Travel with confidence,",
+    "title_post": "arrive with",
+    "subtitle": "The fastest, safest, most affordable way to get around your city. Human-centered technology for your daily life.",
+    "cta_primary": "Request a ride",
+    "cta_secondary": "View pricing",
+    "social_proof": "Joined by over 10,000 users this month",
+    "avatar_label": "Happy user"
+  },
+  "passenger": {
+    "title": "Your city in your hands",
+    "subtitle": "Designed so your only concern is enjoying the ride. With NUVO, smart transport is standard.",
+    "img_alt": "NUVO app for passengers",
+    "features": [
+      { "title": "Total Simplicity",    "description": "Request a ride in two taps. No complications, no unnecessary waiting." },
+      { "title": "Elite Safety",        "description": "Real-time tracking and verified drivers for your total peace of mind." },
+      { "title": "Transparent Pricing", "description": "Know the exact cost before you get in. No hidden fees or surprises." }
+    ]
+  },
+  "driver": {
+    "title": "Drive when you want, earn what you deserve",
+    "subtitle": "Become a partner driver and take control of your time. NUVO offers you the best tools in the market.",
+    "cta": "Register as a driver",
+    "img_alt": "NUVO app for drivers",
+    "cards": [
+      { "title": "Maximized Earnings", "description": "Real-time heat maps to position yourself where demand is highest." },
+      { "title": "Total Flexibility",  "description": "You decide your schedule. No bosses, no constraints — just you and your road." }
+    ]
+  },
+  "fleet": {
+    "title": "A fleet for every need",
+    "subtitle": "From most affordable to most exclusive, we have the perfect vehicle waiting for you.",
+    "cards": [
+      { "title": "NUVO Economy", "description": "Affordable rides for everyday use. NUVO quality at the best price guaranteed.",          "features": ["Up to 4 passengers", "Air conditioning"], "badge": "" },
+      { "title": "NUVO Premier", "description": "Travel in style in high-end vehicles with the highest-rated drivers on our network.", "features": ["Premium Vehicles", "VIP Drivers"],       "badge": "RECOMMENDED" },
+      { "title": "NUVO Green",   "description": "Committed to the planet. Only electric or hybrid vehicles for an eco-friendly ride.",    "features": ["100% Sustainable", "Absolute silence"], "badge": "" }
+    ]
+  },
+  "download": {
+    "title": "Download NUVO today",
+    "subtitle": "Available on App Store and Google Play. Join the urban mobility revolution."
+  },
+  "support": {
+    "title": "24/7 Support",
+    "subtitle": "We're here to help you at any time of day.",
+    "placeholder": "Your email address",
+    "email_aria": "Email address for subscription",
+    "cta": "Subscribe"
+  },
+  "language": {
+    "label": "Select language",
+    "es": "ES",
+    "en": "EN"
+  },
+  "footer": {
+    "tagline": "Getting you where you need to be, in the smartest way possible.",
+    "social": {
+      "website": "Website",
+      "chat": "Chat",
+      "instagram": "Instagram"
+    },
+    "columns": {
+      "company":  { "title": "Company",  "links": ["About Us", "Careers", "Blog", "Press"] },
+      "products": { "title": "Products", "links": ["Passengers", "Drivers", "Business", "Delivery"] },
+      "legal":    { "title": "Legal",    "links": ["Privacy", "Terms & Conditions", "Accessibility", "Cookies"] }
+    },
+    "copyright": "© 2024 NUVO Technologies Inc. All rights reserved.",
+    "language": "English (EN)",
+    "currency": "USD ($)"
+  }
+}
