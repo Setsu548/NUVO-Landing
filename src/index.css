@@ -82,3 +82,22 @@
   transform-origin: center;
   animation: spin-wheel 1.2s linear infinite;
 }
+
+/* Estado inicial de elementos animados con GSAP ScrollTrigger.
+   GSAP los lleva a opacity:1 / y:0 al entrar al viewport.
+   La clase se aplica en el JSX de cada sección. */
+.gsap-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  will-change: opacity, transform;
+}
+
+/* Cuando prefers-reduced-motion está activo, el hook usa gsap.set()
+   para hacer visible todo inmediatamente — el CSS aquí es solo fallback
+   por si JS no carga. */
+@media (prefers-reduced-motion: reduce) {
+  .gsap-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

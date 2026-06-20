@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FleetCard } from '@/components/molecules';
-import { fadeUp, staggerContainer } from '@/hooks/useScrollReveal';
+import { useScrollRevealBatch } from '@/hooks/useGSAPAnimations';
 
 type FleetDef = {
   icon: string;
@@ -16,51 +16,43 @@ const FLEET_DEFS: FleetDef[] = [
 
 export function FleetSection() {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLElement>(null);
+
+  useScrollRevealBatch({ containerRef });
 
   return (
-    <section id="business" className="bg-white py-24">
+    <section id="business" ref={containerRef} className="bg-white py-24">
       <div className="container-page">
-        <motion.div
-          className="mb-16 text-center"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={staggerContainer}
-        >
-          <motion.h2 variants={fadeUp} className="mb-4 text-headline-lg font-bold text-on-surface">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-headline-lg font-bold text-on-surface gsap-reveal">
             {t('fleet.title')}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mx-auto max-w-2xl text-body-md text-on-surface-variant">
+          </h2>
+          <p className="mx-auto max-w-2xl text-body-md text-on-surface-variant gsap-reveal">
             {t('fleet.subtitle')}
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
-        <motion.div
-          className="grid grid-cols-1 gap-6 md:grid-cols-3"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={staggerContainer}
-        >
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {FLEET_DEFS.map(({ icon, featured }, i) => {
             const rawBadge = t(`fleet.cards.${i}.badge`, { defaultValue: '' });
             const badge = rawBadge !== '' ? rawBadge : undefined;
             return (
-              <FleetCard
-                key={icon}
-                icon={icon}
-                featured={featured}
-                title={t(`fleet.cards.${i}.title`)}
-                description={t(`fleet.cards.${i}.description`)}
-                features={[
-                  t(`fleet.cards.${i}.features.0`),
-                  t(`fleet.cards.${i}.features.1`),
-                ]}
-                {...(badge !== undefined ? { badge } : {})}
-              />
+              <div key={icon} className="gsap-reveal">
+                <FleetCard
+                  icon={icon}
+                  featured={featured}
+                  title={t(`fleet.cards.${i}.title`)}
+                  description={t(`fleet.cards.${i}.description`)}
+                  features={[
+                    t(`fleet.cards.${i}.features.0`),
+                    t(`fleet.cards.${i}.features.1`),
+                  ]}
+                  {...(badge !== undefined ? { badge } : {})}
+                />
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

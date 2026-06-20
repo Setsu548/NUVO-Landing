@@ -1,20 +1,17 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/atoms';
-import { fadeUp } from '@/hooks/useScrollReveal';
+import { useScrollRevealBatch } from '@/hooks/useGSAPAnimations';
 
 export function SupportBanner() {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLElement>(null);
+
+  useScrollRevealBatch({ containerRef, amount: 0.4 });
 
   return (
-    <section className="bg-primary-fixed py-16 text-on-primary-fixed">
-      <motion.div
-        className="container-page flex flex-col items-center gap-8 md:flex-row md:justify-between"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.5 }}
-        variants={fadeUp}
-      >
+    <section ref={containerRef} className="bg-primary-fixed py-16 text-on-primary-fixed">
+      <div className="container-page flex flex-col items-center gap-8 md:flex-row md:justify-between gsap-reveal">
         <div className="flex items-center gap-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/40">
             <Icon name="support_agent" size={24} />
@@ -39,7 +36,7 @@ export function SupportBanner() {
             {t('support.cta')}
           </button>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -1,5 +1,46 @@
 # NUVO Landing — Historia de Decisiones Arquitectónicas
 
+## [2026-06-20] - GSAP: timeline de entrada Hero + ScrollTrigger reveal por sección
+
+### Qué se hizo
+- Instalados `gsap 3.15.0` y `@gsap/react 2.1.2` como dependencias de producción.
+- Creado `src/hooks/useGSAPAnimations.ts` con tres exports:
+  - `useHeroEntrance`: timeline de entrada orquestado (ilustración + copy con stagger) vía `useGSAP`.
+  - `useScrollRevealBatch`: revela elementos `.gsap-reveal` por sección con `ScrollTrigger.batch`, scoped al `containerRef` de cada componente mediante `querySelectorAll` interno.
+  - `useParallax`: efecto parallax scrub-linked (disponible, no aplicado aún — ver deuda técnica).
+- Refactorizado `Hero.tsx`: eliminados `motion.div` wrappers de entrada (Framer Motion), reemplazados por clases `.hero-copy` y `.hero-illustration` como targets del timeline GSAP. Se conserva `motion.section` solo para el color cycling de fondo (loop que no es de entrada, FM sigue siendo el tool correcto para eso). Se conservan `whileHover`/`whileTap` en los CTAs.
+- Refactorizados `PassengerSection`, `DriverSection`, `FleetSection`, `AppDownloadCTA`, `SupportBanner`: eliminados todos los `motion.div` con `whileInView`/`variants`. Reemplazados por `useScrollRevealBatch` + clase `.gsap-reveal` en los elementos.
+- Agregados estilos en `index.css`: clase `.gsap-reveal` con estado inicial `opacity: 0; transform: translateY(40px); will-change: opacity, transform;` + fallback `@media (prefers-reduced-motion: reduce)` que resetea a visible.
+- Build de producción: `tsc --noEmit` sin errores, `vite build` exitoso. Output: 515 kB JS / 20.78 kB CSS.
+
+### Decisiones arquitectónicas
+- **GSAP coexiste con Framer Motion — no reemplaza**: FM sigue siendo el tool correcto para animaciones de estado React (color cycling, hover, tap). GSAP toma control de las animaciones de entrada y scroll porque ofrece mejor rendimiento de timeline, `ScrollTrigger.batch` para coordinación de grupos, y `gsap.matchMedia` como API first-class para `prefers-reduced-motion`. Eliminar FM habría sido un refactor de mayor riesgo sin beneficio proporcional.
+- **`useGSAP` de `@gsap/react` sobre `useEffect` + `gsap.context`**: `useGSAP` maneja cleanup automático (revert de tweens y ScrollTriggers al desmontar), expone `contextSafe` para callbacks post-mount, y es el patrón oficial de GSAP para React. `useEffect` + `gsap.context().revert()` era el patrón anterior; con `@gsap/react` disponible no hay razón para usarlo.
+- **`querySelectorAll` en lugar de selector string global en `ScrollTrigger.batch`**: `useGSAP` con `{ scope: containerRef }` hace que los selectores CSS de GSAP estén scoped al container. Sin embargo, `ScrollTrigger.batch` como API de alto nivel no acepta `scope` directamente — hace su propia búsqueda en el DOM. Pasar `NodeList` en lugar de string de selector evita que una sección active ScrollTriggers de otra, manteniendo el aislamiento correcto por componente.
+- **`gsap.matchMedia()` dentro de cada hook**: GSAP recomienda `matchMedia` en lugar de checar `window.matchMedia` manualmente porque es reactive y se revierte automáticamente al cambiar la media query. El fallback CSS en `.gsap-reveal { @media (prefers-reduced-motion: reduce) }` es solo seguridad por si JS no carga.
+- **`will-change: opacity, transform` en `.gsap-reveal`**: promovido a capa de compositing desde el principio para evitar layout thrashing durante la animación. Se aplica solo a los elementos que serán animados, no globalmente.
+- **Blob del Hero conservado con CSS animation**: el `hero-blob` usa `animation: hero-pulse 7s ease-in-out infinite` ya existente. No migrado a GSAP porque es un loop decorativo de baja prioridad — agregar un tween GSAP aquí sería over-engineering.
+
+### Archivos modificados/creados
+- `src/hooks/useGSAPAnimations.ts` — CREADO: tres hooks GSAP (`useHeroEntrance`, `useScrollRevealBatch`, `useParallax`)
+- `src/index.css` — agregada clase `.gsap-reveal` con estado inicial y fallback `prefers-reduced-motion`
+- `src/components/organisms/Hero.tsx` — timeline GSAP de entrada, limpieza de Framer Motion variants de entrada
+- `src/components/organisms/PassengerSection.tsx` — `useScrollRevealBatch` + `.gsap-reveal`, eliminados `motion.*` wrappers
+- `src/components/organisms/DriverSection.tsx` — ídem
+- `src/components/organisms/FleetSection.tsx` — ídem
+- `src/components/organisms/AppDownloadCTA.tsx` — ídem
+- `src/components/organisms/SupportBanner.tsx` — ídem
+- `package.json` — `gsap 3.15.0` y `@gsap/react 2.1.2` agregados a `dependencies`
+
+### Deuda técnica / Próximos pasos
+- **Bundle**: 515 kB JS (173 kB gzip). Tener GSAP (≈150kB) + Framer Motion (≈80kB) en el mismo bundle es el trade-off de la coexistencia. En el momento que se agregue una segunda ruta, implementar code splitting con `manualChunks` para separar `gsap` y `framer-motion` en chunks vendor.
+- **`useParallax`**: hook implementado y exportado pero no aplicado. Candidatos: el `hero-blob`, las imágenes de teléfono en PassengerSection/DriverSection. Evaluar si el efecto aporta suficiente valor visual antes de aplicar.
+- **Ruedas del auto SVG**: el `spin-wheel` CSS animation podría reemplazarse con un tween GSAP que acelere/desacelere al aparecer el Hero para mayor dramatismo de entrada. Requiere agregar ref a los `<g class="wheel-spin">` del SVG.
+- **Footer**: no migrado a GSAP reveal — leer su implementación y evaluar si tiene animaciones Framer Motion de entrada pendientes de migrar.
+
+### Breaking changes
+- `useScrollReveal.ts` ya no es importado por ningún organism. Las exportaciones `fadeUp`, `scaleIn`, `staggerContainer` siguen disponibles — el archivo no fue eliminado para no romper posibles importaciones en otros contextos.
+
 ## [2026-06-17] - Ajustes visuales: ritmo Hero y color Navbar
 
 ### Qué se hizo

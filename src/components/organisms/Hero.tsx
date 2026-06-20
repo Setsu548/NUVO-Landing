@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Icon } from '@/components/atoms';
-import { fadeUp, scaleIn, staggerContainer } from '@/hooks/useScrollReveal';
+import { useHeroEntrance } from '@/hooks/useGSAPAnimations';
 
 /** Tonos Nuvo Blue con contraste suficiente para texto blanco (ratio ≥ 4.5:1). */
 const HERO_COLORS = [
@@ -249,6 +249,11 @@ export function Hero() {
   const { t } = useTranslation();
   const [colorIndex, setColorIndex] = useState(0);
 
+  // Refs para GSAP scope
+  const containerRef = useRef<HTMLElement>(null);
+
+  // Color cycling del fondo — se mantiene en Framer Motion (animación de loop
+  // que no depende de scroll, FM es ideal para esto).
   useEffect(() => {
     const interval = setInterval(() => {
       setColorIndex((prev) => (prev + 1) % HERO_COLORS.length);
@@ -256,50 +261,46 @@ export function Hero() {
     return () => clearInterval(interval);
   }, []);
 
+  // Timeline de entrada con GSAP: copy y ilustración entran orquestados.
+  useHeroEntrance({ containerRef });
+
   return (
     <motion.section
+      ref={containerRef}
       className="relative min-h-[85vh] overflow-hidden flex items-center"
       animate={{ backgroundColor: HERO_COLORS[colorIndex] }}
       transition={{ duration: 4, ease: 'easeInOut' }}
     >
-      {/* hero-pattern como overlay semitransparente para mantener el efecto de puntos */}
+      {/* hero-pattern overlay semitransparente */}
       <div
         aria-hidden="true"
         className="hero-pattern pointer-events-none absolute inset-0 opacity-20"
       />
-      {/* Animated blob */}
+      {/* Blob decorativo */}
       <div
         aria-hidden="true"
         className="hero-blob pointer-events-none absolute right-0 top-0 h-[600px] w-[600px] -translate-y-1/4 translate-x-1/4 rounded-full bg-primary/10 blur-3xl"
       />
 
       <div className="container-page relative z-10 grid w-full grid-cols-1 items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
-        {/* Left: copy */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="flex flex-col gap-6"
-        >
-          <motion.div variants={fadeUp}>
+        {/* Left: copy — GSAP anima los hijos directos con selector .hero-copy > * */}
+        <div className="hero-copy flex flex-col gap-6">
+          <div>
             <Badge>{t('hero.badge')}</Badge>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            variants={fadeUp}
-            className="text-5xl font-bold leading-tight tracking-tight text-on-primary md:text-headline-xl"
-          >
+          <h1 className="text-5xl font-bold leading-tight tracking-tight text-on-primary md:text-headline-xl">
             {t('hero.title_pre')}{' '}
             <br className="hidden md:block" />
             {t('hero.title_post')}{' '}
             <span className="text-primary-fixed">NUVO</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p variants={fadeUp} className="max-w-lg text-body-lg text-inverse-on-surface">
+          <p className="max-w-lg text-body-lg text-inverse-on-surface">
             {t('hero.subtitle')}
-          </motion.p>
+          </p>
 
-          <motion.div variants={fadeUp} className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
               <a
                 href="#"
@@ -317,10 +318,10 @@ export function Hero() {
                 {t('hero.cta_secondary')}
               </a>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Social proof */}
-          <motion.div variants={fadeUp} className="mt-4 flex items-center gap-6">
+          <div className="mt-4 flex items-center gap-6">
             <div className="flex -space-x-3">
               <AvatarPlaceholder initial="M" bgColor="#e8956d" label={t('hero.avatar_label')} />
               <AvatarPlaceholder initial="S" bgColor="#7b5ea7" label={t('hero.avatar_label')} />
@@ -331,22 +332,17 @@ export function Hero() {
             <p className="text-body-sm text-inverse-on-surface">
               {t('hero.social_proof')}
             </p>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        {/* Right: car image */}
-        <motion.div
-          className="relative flex justify-center lg:justify-center"
-          initial="hidden"
-          animate="visible"
-          variants={scaleIn}
-        >
+        {/* Right: ilustración del auto — GSAP la anima con .hero-illustration */}
+        <div className="hero-illustration relative flex justify-center lg:justify-center">
           <div
             aria-hidden="true"
             className="absolute inset-0 scale-125 rounded-full bg-primary/5 blur-3xl"
           />
           <CarIllustration className="relative z-10 w-full max-w-xs sm:max-w-sm lg:max-w-lg drop-shadow-2xl" />
-        </motion.div>
+        </div>
       </div>
     </motion.section>
   );
