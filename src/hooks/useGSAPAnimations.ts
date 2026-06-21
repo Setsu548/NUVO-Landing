@@ -158,7 +158,9 @@ interface CarSlideInOptions {
 
 /**
  * Desliza el auto desde la derecha hacia su posición final cuando la sección
- * entra al viewport. Sin movimiento en prefers-reduced-motion: reduce.
+ * entra al viewport. El auto SIEMPRE entra por la derecha y SIEMPRE sale por
+ * la izquierda, independientemente de la dirección del scroll.
+ * Sin movimiento en prefers-reduced-motion: reduce.
  */
 export function useCarSlideIn({ sectionRef, carRef }: CarSlideInOptions) {
   useGSAP(
@@ -168,20 +170,35 @@ export function useCarSlideIn({ sectionRef, carRef }: CarSlideInOptions) {
       const mm = gsap.matchMedia();
 
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap.fromTo(
-          carRef.current,
-          { xPercent: 115, opacity: 0 },
-          {
-            xPercent: 0,
-            opacity: 1,
-            duration: 1.3,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 72%',
-            },
-          },
-        );
+        // Estado inicial: fuera del viewport por la derecha.
+        gsap.set(carRef.current, { xPercent: 115, opacity: 0 });
+
+        const slideIn = () =>
+          gsap.fromTo(
+            carRef.current,
+            { xPercent: 115, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 1.3, ease: 'power3.out', overwrite: true },
+          );
+        const slideOut = (dur: number) =>
+          gsap.to(carRef.current, { xPercent: -115, opacity: 0, duration: dur, ease: 'power2.in', overwrite: true });
+
+        const st = ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top 72%',
+          end: 'bottom top',
+          onEnter: slideIn,
+          onLeave: () => slideOut(0.9),
+          onEnterBack: () =>
+            gsap.fromTo(
+              carRef.current,
+              { xPercent: 115, opacity: 0 },
+              { xPercent: 0, opacity: 1, duration: 1.0, ease: 'power3.out', overwrite: true },
+            ),
+          onLeaveBack: () => slideOut(0.7),
+        });
+
+        // Si la sección ya está en el viewport al inicializar, onEnter no dispara.
+        if (st.isActive) slideIn();
       });
 
       mm.add('(prefers-reduced-motion: reduce)', () => {
@@ -189,6 +206,107 @@ export function useCarSlideIn({ sectionRef, carRef }: CarSlideInOptions) {
       });
     },
     { scope: sectionRef },
+  );
+}
+
+// ─── Car slide-in from LEFT ──────────────────────────────────────────────────
+
+/**
+ * Espejo de useCarSlideIn: el auto SIEMPRE entra por la IZQUIERDA y SIEMPRE
+ * sale por la DERECHA. Para secciones donde el auto está en el lado izquierdo.
+ */
+export function useCarSlideInFromLeft({ sectionRef, carRef }: CarSlideInOptions) {
+  useGSAP(
+    () => {
+      if (!carRef.current || !sectionRef.current) return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.set(carRef.current, { xPercent: -115, opacity: 0 });
+
+        const slideIn = () =>
+          gsap.fromTo(
+            carRef.current,
+            { xPercent: -115, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 1.3, ease: 'power3.out', overwrite: true },
+          );
+        const slideOut = (dur: number) =>
+          gsap.to(carRef.current, { xPercent: 115, opacity: 0, duration: dur, ease: 'power2.in', overwrite: true });
+
+        const st = ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top 72%',
+          end: 'bottom top',
+          onEnter: slideIn,
+          onLeave: () => slideOut(0.9),
+          onEnterBack: () =>
+            gsap.fromTo(
+              carRef.current,
+              { xPercent: -115, opacity: 0 },
+              { xPercent: 0, opacity: 1, duration: 1.0, ease: 'power3.out', overwrite: true },
+            ),
+          onLeaveBack: () => slideOut(0.7),
+        });
+
+        if (st.isActive) slideIn();
+      });
+
+      mm.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set(carRef.current, { xPercent: 0, opacity: 1 });
+      });
+    },
+    { scope: sectionRef },
+  );
+}
+
+// ─── Feature cards reveal (cinematográfico) ─────────────────────────────────
+
+interface FeatureCardsRevealOptions {
+  containerRef: RefObject<HTMLElement | null>;
+}
+
+/**
+ * Reveal cinematográfico para cards individuales de features (.feature-card).
+ * Cada card entra con opacity + translateY + scale en stagger.
+ * Al salir hacia arriba vuelven al estado inicial para un re-reveal limpio.
+ */
+export function useFeatureCardsReveal({ containerRef }: FeatureCardsRevealOptions) {
+  useGSAP(
+    () => {
+      if (!containerRef.current) return;
+      const cards = containerRef.current.querySelectorAll<HTMLElement>('.feature-card');
+      if (cards.length === 0) return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.set(cards, { opacity: 0, y: 50, scale: 0.95 });
+
+        ScrollTrigger.batch(cards, {
+          start: 'top 88%',
+          onEnter: (batch) => {
+            gsap.to(batch, {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.7,
+              stagger: 0.15,
+              ease: 'power3.out',
+              overwrite: true,
+            });
+          },
+          onLeaveBack: (batch) => {
+            gsap.set(batch, { opacity: 0, y: 50, scale: 0.95, overwrite: true });
+          },
+        });
+      });
+
+      mm.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set(cards, { opacity: 1, y: 0, scale: 1 });
+      });
+    },
+    { scope: containerRef },
   );
 }
 

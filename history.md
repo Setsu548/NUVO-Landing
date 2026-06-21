@@ -1,5 +1,131 @@
 # NUVO Landing — Historia de Decisiones Arquitectónicas
 
+## [2026-06-21] - DriverSection: auto animado con GSAP (espejo de PassengerSection)
+
+### Qué se hizo
+- Añadido import de `useCarSlideInFromLeft` desde `useGSAPAnimations.ts` (el hook ya existía, no fue necesario crearlo).
+- Añadido import del PNG `car-front-right.png` (asset ya existente en `public/assets/`).
+- Añadido `carRef = useRef<HTMLDivElement>(null)` y llamada a `useCarSlideInFromLeft({ sectionRef: containerRef, carRef })` después de `useScrollRevealBatch`.
+- Añadido `relative [clip-path:inset(0)]` al `<section>`, espejando exactamente la clase de `PassengerSection`.
+- Insertado el div del auto como primer child del `<section>`, con `absolute top-0 inset-x-0 bottom-1/2 z-0 opacity-40 lg:bottom-0 lg:right-auto lg:w-1/2 lg:opacity-100`.
+- Añadido `relative z-10` al `div.container-page` para que el contenido quede sobre el auto.
+- `useScrollRevealBatch` y todas las clases `gsap-reveal` sin tocar — mismos parámetros del estado original.
+
+### Decisiones arquitectónicas
+- **Ediciones quirúrgicas con `Edit` en lugar de reescritura**: el intento anterior rompió los `gsap-reveal` porque reescribió el archivo completo, introduciendo cambios colaterales. Cada modificación fue un `Edit` aislado, verificable y reversible de forma independiente.
+- **`useScrollRevealBatch` sin cambiar `amount`**: el `amount: 0.15` por defecto funciona correctamente. La causa de la regresión anterior no era el `amount` sino la reescritura completa que alteró involuntariamente clases y estructura del JSX.
+- **`[clip-path:inset(0)]` en lugar de solo `overflow-hidden`**: `overflow-hidden` en el `<section>` ya existía; agregar `[clip-path:inset(0)]` crea un stacking context explícito que garantiza que el `xPercent: -115` del auto animado no genere scroll horizontal en el documento. `PassengerSection` usa exactamente el mismo patrón y funciona.
+- **Cards de driver mantienen `gsap-reveal`**: DriverSection no tiene `.feature-card` ni usa `useFeatureCardsReveal`. Las dos cards de beneficio siguen siendo parte del batch reveal genérico — su animación es estéticamente coherente y no requiere el reveal cinematográfico de scale que justificó `useFeatureCardsReveal` en PassengerSection.
+
+### Archivos modificados
+- `landing/src/components/organisms/DriverSection.tsx` — 4 ediciones quirúrgicas: imports, refs/hooks, className del section, div del auto + z-10 en container-page
+
+### Deuda técnica / Próximos pasos
+- Evaluar en mobile si el auto con `opacity-40` y `object-right` tiene suficiente presencia visual o si conviene ajustar `object-position` para mostrar más carrocería.
+
+### Breaking changes
+- Ninguno.
+
+---
+
+## [2026-06-20] - PassengerSection: fix auto en mobile (w-full + opacity-40)
+
+### Qué se hizo
+- Cambiado `w-1/2` por `w-full lg:w-1/2` en el contenedor del auto PNG para que en mobile cubra toda la sección en lugar de solo la mitad derecha.
+- Añadido `opacity-40 lg:opacity-100` al mismo contenedor: en mobile el auto actúa como fondo sutil (40% opacidad) permitiendo legibilidad del texto encima; en desktop recupera opacidad total.
+
+### Decisiones arquitectónicas
+- **`w-full` en mobile vs. posicionamiento alternativo**: la alternativa era usar `position: static` en mobile y empujar el auto al flujo del documento, pero eso rompía la composición visual (el auto aparecería debajo del contenido, no detrás). Mantener `absolute` con `w-full` es la solución que preserva el layering `z-0 / z-10` ya establecido sin tocar el grid ni la animación GSAP.
+- **`opacity-40` en mobile**: el texto sobre el auto sin panel de fondo sería ilegible en mobile dado que las cards `bg-surface/90` sí protegen en desktop pero en mobile el contenido puede solaparse más directamente. La opacidad reducida hace al auto un elemento de textura/ambiente sin comprometer la jerarquía tipográfica. En desktop la composición tiene más espacio y el auto queda visualmente separado del texto.
+- **Animación GSAP sin cambios**: `useCarSlideIn` usa `xPercent: 115`, que es relativo al ancho del elemento. Con `w-full` en mobile el auto sigue entrando desde la derecha correctamente — el porcentaje funciona sobre cualquier ancho.
+
+### Archivos modificados
+- `landing/src/components/organisms/PassengerSection.tsx` — una línea: className del contenedor `carRef`
+
+### Deuda técnica / Próximos pasos
+- Evaluar si `opacity-40` es suficiente contraste en los temas de tenants con fondos claros cuando se integren.
+
+### Breaking changes
+- Ninguno.
+
+---
+
+## [2026-06-20] - PassengerSection: sección sin fondo + feature cards glassmorphism + reveal cinematográfico
+
+### Qué se hizo
+- Eliminado `bg-surface` del `<section>` de `PassengerSection.tsx` — la sección ahora es transparente y el auto PNG se ve directamente sobre el fondo de la página.
+- Eliminado el panel glass del div de copy (`lg:bg-surface/85 lg:backdrop-blur-md ...`) — ya no agrupa las features en un único bloque semitransparente.
+- Cada feature item envuelto en una card individual con `rounded-2xl bg-surface/90 backdrop-blur-sm border border-outline-variant/20 p-5 shadow-sm feature-card`. El glassmorphism queda contenido en la unidad mínima de información, no en el bloque completo.
+- El `h2` movido dentro de un contenedor `bg-surface/80 backdrop-blur-sm rounded-xl px-4 py-3` para garantizar legibilidad sobre el fondo variable de la página.
+- El `<p>` de subtítulo usa `drop-shadow` para contraste sin panel de fondo — más ligero visualmente.
+- `space-y-8` reducido a `space-y-4` entre cards (el padding interno de cada card ya provee separación visual suficiente).
+- Añadida función `useFeatureCardsReveal` en `useGSAPAnimations.ts`: batch reveal con `opacity + translateY(50px) + scale(0.95)` → estado final, `stagger: 0.15`, `ease: power3.out`. Usa `gsap.matchMedia()` — en `prefers-reduced-motion: reduce` los cards aparecen directamente en estado final.
+- `useFeatureCardsReveal` importado y llamado en `PassengerSection.tsx`.
+- Clases de los wrappers de feature cambiadas de `gsap-reveal` a `feature-card` — el nuevo hook los selecciona por esa clase; `gsap-reveal` permanece en h2 y párrafo para el `useScrollRevealBatch` existente.
+
+### Decisiones arquitectónicas
+- **Card-level glassmorphism vs. panel full-section**: el panel único era conveniente pero ocultaba el auto (el elemento visual estrella de la sección). Dividir el glass en cards individuales permite que el fondo del documento sea visible entre ellas, manteniendo legibilidad sin sacrificar la composición visual.
+- **Nueva clase `.feature-card` en lugar de reutilizar `.gsap-reveal`**: los cards de features tienen una animación diferente (scale + mayor y + stagger más largo) que no comparte parámetros con el reveal genérico. Selectors separados evitan que un hook sobreescriba el estado del otro. GSAP `overwrite: true` en ambos hooks igualmente protege de race conditions.
+- **`useFeatureCardsReveal` como función independiente vs. opción en `useScrollRevealBatch`**: mantener la responsabilidad única del hook existente y evitar parámetros condicionales que aumentan la superficie de bugs.
+
+### Archivos modificados
+- `landing/src/components/organisms/PassengerSection.tsx` — estructura visual y clases refactorizadas, hook añadido
+- `landing/src/hooks/useGSAPAnimations.ts` — función `useFeatureCardsReveal` añadida
+
+### Deuda técnica / Próximos pasos
+- Si otras secciones añaden cards con reveal cinematográfico, `useFeatureCardsReveal` puede generalizarse recibiendo un `selector` como opción (`.feature-card` por defecto).
+- El `drop-shadow` del párrafo puede no ser suficiente en fondos muy claros — considerar evaluar en los temas de los distintos tenants cuando se integren.
+
+### Breaking changes
+- Ninguno. Las interfaces públicas de los hooks no cambiaron.
+
+---
+
+## [2026-06-20] - useCarSlideIn: salida siempre por la izquierda con ScrollTrigger.create
+
+### Qué se hizo
+- Refactorizado `useCarSlideIn` en `useGSAPAnimations.ts`: reemplazado el patrón `gsap.to + scrollTrigger inline` por `ScrollTrigger.create()` con los 4 callbacks explícitos.
+- Comportamiento resultante: el auto SIEMPRE entra desde la derecha (`xPercent: 115 → 0`) y SIEMPRE sale por la izquierda (`xPercent: 0 → -115`), independientemente de la dirección del scroll.
+- `onEnter` y `onEnterBack` usan `gsap.fromTo` para fijar el estado de inicio (`xPercent: 115`) antes de animar — elimina cualquier race condition con el tween de salida previo.
+- `overwrite: true` en todos los tweens para evitar conflictos cuando el usuario hace scroll rápido y los callbacks se solapan.
+- `tsc --noEmit` sin errores.
+
+### Decisiones arquitectónicas
+- **`ScrollTrigger.create()` en lugar de `gsap.to + scrollTrigger: {}`**: el patrón inline liga el ScrollTrigger al ciclo de vida del tween de entrada, lo que significa que `onEnter` no es configurable de forma independiente — el tween se dispara automáticamente al entrar. `ScrollTrigger.create()` desacopla el trigger del tween: cada callback define su propia animación completa, permitiendo comportamientos asimétricos (entrar desde derecha, salir por izquierda) sin hacks.
+- **`gsap.fromTo` en onEnter/onEnterBack vs `gsap.to`**: `gsap.to` anima desde el estado _actual_ del elemento. Si el elemento está en `xPercent: -115` (post-`onLeave`), un `gsap.to({ xPercent: 0 })` arranca desde ahí visualmente correcto, pero si el tween anterior fue interrumpido, el estado puede ser cualquier valor intermedio. `gsap.fromTo` garantiza que el punto de partida sea siempre `xPercent: 115` — el salto instantáneo de `-115` a `115` ocurre off-screen porque el contenedor tiene `overflow-hidden`, por lo que no hay glitch visual.
+- **Salida simétrica (scroll up y scroll down ambos a `-115`)**: la semántica "el auto siempre continúa hacia adelante" es visualmente más coherente que "el auto vuelve de donde vino". En scroll down el auto sale por la izquierda (continúa su trayectoria de entrada); en scroll up también sale por la izquierda (consistencia), y la re-entrada desde la derecha reinicia el ciclo. Alternativa descartada: salida por la derecha en `onLeaveBack` (comportamiento previo) — rompe la ilusión de movimiento continuo.
+
+### Archivos modificados/creados
+- `src/hooks/useGSAPAnimations.ts` — `useCarSlideIn` refactorizado con `ScrollTrigger.create()`
+
+---
+
+## [2026-06-20] - PassengerSection: imagen car-front-left y slide-out del auto
+
+### Qué se hizo
+- Reemplazado el import del auto en `PassengerSection.tsx`: `car-nuvo.png` → `car-front-left.png` (1173×558px, fondo transparente, procesado con rembg).
+- Ampliado `useCarSlideIn` en `useGSAPAnimations.ts` para incluir comportamiento de salida:
+  - Estado inicial explicitado con `gsap.set` previo al tween de entrada (desacoplado del `fromTo`).
+  - `onLeave`: cuando la sección sale por arriba del viewport (scroll down), el auto se desliza hacia la derecha con `xPercent: 115, opacity: 0, duration: 0.9, ease: 'power2.in'`.
+  - `onEnterBack`: cuando el usuario hace scroll up y la sección vuelve al viewport, el auto vuelve a su posición con `xPercent: 0, opacity: 1, duration: 1.0, ease: 'power3.out'`.
+  - `onLeaveBack`: cuando el trigger sale por abajo (scroll up más allá del inicio de la sección), reset con `xPercent: 115, opacity: 0, duration: 0.7, ease: 'power2.in'`.
+- `tsc --noEmit` sin errores.
+
+### Decisiones arquitectónicas
+- **`gsap.set` + `gsap.to` en lugar de mantener `gsap.fromTo`**: `gsap.fromTo` define el estado de inicio en el tween mismo, lo que significa que cada vez que `onEnterBack` dispara un `gsap.to`, el from del `fromTo` original ya no es relevante. Separar `set` (estado inicial) de `to` (animación de entrada) hace que los callbacks `onLeave`/`onEnterBack`/`onLeaveBack` sean `gsap.to` independientes que no interfieren con el tween original. La semántica es más clara y el comportamiento bidireccional más predecible.
+- **`end: 'bottom top'` en el ScrollTrigger**: necesario para que `onLeave` se dispare cuando la sección sale completamente por arriba. Sin `end` definido, el ScrollTrigger en modo no-scrub ignora el punto de salida y `onLeave` nunca se invoca.
+- **Ease asimétrico entrada/salida**: `power3.out` para entrada (deceleración suave, sensación de aterrizaje) y `power2.in` para salida (aceleración, el auto "escapa"). El contraste de curvas hace el movimiento más natural — la salida se siente reactiva, no idéntica a la entrada en reversa.
+- **`prefers-reduced-motion`**: el bloque `gsap.set` de fallback (`xPercent: 0, opacity: 1`) se mantiene dentro del media query `reduce` — no se agrega `scrollTrigger` allí, lo que significa que en motion reducido el auto simplemente aparece estático sin ninguna animación de scroll.
+
+### Archivos modificados/creados
+- `src/components/organisms/PassengerSection.tsx` — import de imagen actualizado
+- `src/hooks/useGSAPAnimations.ts` — `useCarSlideIn` ampliado con `onLeave`, `onEnterBack`, `onLeaveBack`
+
+### Deuda técnica / Próximos pasos
+- La misma lógica de slide-out podría aplicarse al auto de `DriverSection` si ese componente tiene un asset equivalente.
+
+---
+
 ## [2026-06-20] - GSAP: timeline de entrada Hero + ScrollTrigger reveal por sección
 
 ### Qué se hizo

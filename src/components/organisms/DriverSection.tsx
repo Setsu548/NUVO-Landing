@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/atoms';
-import { useScrollRevealBatch } from '@/hooks/useGSAPAnimations';
+import { useScrollRevealBatch, useCarSlideInFromLeft } from '@/hooks/useGSAPAnimations';
+import carPng from '/assets/car-front-right.png';
 
 const DRIVER_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBT-YtXpq54I98R1dLUlYCbB3c3fxMJJ9yK1pyw4q_9pEEYNJsRMy454sM72eIcnb3yws4Y1Ph1iCk5Lyg8wNsyoFAUnOwNmpMcvU_i7X3PJaTsj-E3CVfqWhiJujNp2RxGT0KCZNrsgM973KipRgaJ2GWiBwhq-s2YNiOAwc3wwyTjU9wtosNoxo2YHsMR9_MkNrEeHGmFgjRKjJGud8LD25I_4xnH42uNVm3Qw3BsyXroFBhWPKXdNbEWs7AxuA13ONBVeb7GQAo';
@@ -12,8 +13,10 @@ const CARD_ICONS = ['trending_up', 'event_available'] as const;
 export function DriverSection() {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLElement>(null);
+  const carRef = useRef<HTMLDivElement>(null);
 
   useScrollRevealBatch({ containerRef });
+  useCarSlideInFromLeft({ sectionRef: containerRef, carRef });
 
   return (
     <section id="drive" ref={containerRef} className="overflow-hidden bg-surface-container-low py-24">

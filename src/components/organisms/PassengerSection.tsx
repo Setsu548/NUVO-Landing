@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FeatureItem } from '@/components/molecules';
-import { useScrollRevealBatch, useCarSlideIn } from '@/hooks/useGSAPAnimations';
-import carPng from '/assets/car-nuvo.png';
+import { useScrollRevealBatch, useCarSlideIn, useFeatureCardsReveal } from '@/hooks/useGSAPAnimations';
+import carPng from '/assets/car-front-left.png';
 
 const PASSENGER_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDSPHlY6lczpVl3F7OepgJCd0M4aV9M9HoHGloUDTQqla3HG9aGYiVRVuMP_AeDFtNvQfjsHxr_Z3rvL13Pt7ShnUEPHsLqeeCcmEOu0EbVvPfQJc88nrXnEmyTmBGbcmI6dYwQunHOtocGfN1RNXVIS3xXl8rxHtB8v8lgUmTU5xKgobRZrZz4rrru3G4pdwv2cirv409LbORZA-2EQGSYOJKb65PyI_FYB5SU43brZBc6aDYfFWWYFjT2hSsD_jnOc1rtsFw4w_0';
@@ -16,20 +16,21 @@ export function PassengerSection() {
 
   useScrollRevealBatch({ containerRef });
   useCarSlideIn({ sectionRef: containerRef, carRef });
+  useFeatureCardsReveal({ containerRef });
 
   return (
-    <section id="ride" ref={containerRef} className="relative overflow-hidden bg-surface py-24">
+    <section id="ride" ref={containerRef} className="relative overflow-hidden py-24 [clip-path:inset(0)]">
 
       {/* Auto PNG — desliza de derecha a izquierda al hacer scroll */}
       <div
         ref={carRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-0 w-1/2"
+        className="pointer-events-none absolute top-0 inset-x-0 bottom-1/2 z-0 opacity-40 lg:bottom-0 lg:left-auto lg:w-1/2 lg:opacity-100"
       >
         <img
           src={carPng}
           alt=""
-          className="h-full w-full object-cover object-left"
+          className="absolute inset-0 h-full w-full object-cover object-left lg:object-contain lg:object-left"
           draggable={false}
         />
       </div>
@@ -53,15 +54,20 @@ export function PassengerSection() {
 
         {/* Copy */}
         <div className="order-1 lg:order-2">
-          <h2 className="mb-4 text-headline-lg font-bold text-on-surface gsap-reveal">
-            {t('passenger.title')}
-          </h2>
-          <p className="mb-10 text-body-md text-on-surface-variant gsap-reveal">
-            {t('passenger.subtitle')}
-          </p>
-          <div className="space-y-8">
+          <div className="mb-6 rounded-2xl bg-surface/90 backdrop-blur-sm border border-outline-variant/20 px-6 py-5 shadow-sm gsap-reveal">
+            <h2 className="mb-3 text-headline-lg font-bold text-on-surface">
+              {t('passenger.title')}
+            </h2>
+            <p className="text-body-md text-on-surface-variant">
+              {t('passenger.subtitle')}
+            </p>
+          </div>
+          <div className="space-y-4">
             {FEATURE_ICONS.map((icon, i) => (
-              <div key={icon} className="gsap-reveal">
+              <div
+                key={icon}
+                className="feature-card rounded-2xl bg-surface/90 backdrop-blur-sm border border-outline-variant/20 p-5 shadow-sm"
+              >
                 <FeatureItem
                   icon={icon}
                   title={t(`passenger.features.${i}.title`)}
