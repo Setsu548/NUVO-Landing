@@ -15,12 +15,24 @@ export function DriverSection() {
   const containerRef = useRef<HTMLElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
 
-  useScrollRevealBatch({ containerRef });
   useCarSlideInFromLeft({ sectionRef: containerRef, carRef });
+  useScrollRevealBatch({ containerRef });
 
   return (
-    <section id="drive" ref={containerRef} className="overflow-hidden bg-surface-container-low py-24">
-      <div className="container-page grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+    <section id="drive" ref={containerRef} className="relative overflow-hidden bg-surface-container-low py-24 [clip-path:inset(0)]">
+      <div
+        ref={carRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 inset-x-0 bottom-1/2 z-0 opacity-40 lg:bottom-0 lg:right-auto lg:w-1/2 lg:opacity-100"
+      >
+        <img
+          src={carPng}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-right lg:object-contain lg:object-right"
+          draggable={false}
+        />
+      </div>
+      <div className="container-page relative z-10 grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
         {/* Copy */}
         <div>
           <h2 className="mb-4 text-headline-lg font-bold text-on-surface gsap-reveal">
