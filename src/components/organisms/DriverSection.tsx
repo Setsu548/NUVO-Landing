@@ -35,18 +35,20 @@ export function DriverSection() {
       <div className="container-page relative z-10 grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
         {/* Copy */}
         <div>
-          <h2 className="mb-4 text-headline-lg font-bold text-on-surface gsap-reveal">
-            {t('driver.title')}
-          </h2>
-          <p className="mb-10 text-body-md text-on-surface-variant gsap-reveal">
-            {t('driver.subtitle')}
-          </p>
+          <div className="mb-10 rounded-2xl bg-white/80 backdrop-blur-sm border border-outline-variant/20 px-6 py-5 shadow-sm gsap-reveal">
+            <h2 className="mb-3 text-headline-lg font-bold text-on-surface">
+              {t('driver.title')}
+            </h2>
+            <p className="text-body-md text-on-surface-variant">
+              {t('driver.subtitle')}
+            </p>
+          </div>
 
           <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
             {CARD_ICONS.map((icon, i) => (
               <div
                 key={icon}
-                className="rounded-2xl border border-outline-variant bg-white p-6 shadow-card gsap-reveal"
+                className="rounded-2xl border border-outline-variant/20 bg-white/80 backdrop-blur-sm p-6 shadow-card gsap-reveal"
               >
                 <Icon name={icon} size={30} className="mb-4 text-primary" />
                 <h4 className="mb-2 text-body-md font-bold text-on-surface">

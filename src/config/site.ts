@@ -17,7 +17,3 @@ export const site = {
   },
 } as const;
 
-/** Builds the wa.me deep link with a URL-encoded prefilled message. */
-export function whatsAppUrl(message: string = site.whatsapp.message): string {
-  return `https://wa.me/${site.whatsapp.phone}?text=${encodeURIComponent(message)}`;
-}
